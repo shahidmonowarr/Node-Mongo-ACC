@@ -1,38 +1,77 @@
-// Exploring File System Module
-const http = require("http");
-const fs = require("fs");
+const http = require('http');
+const fs = require('fs');
 
+// Create an HTTP server:
 const server = http.createServer((req, res) => {
-  if ((req.url = "/")) {
-    // asynchronous way of reading file
-    // fs.readFile("data.txt", (err, data) => {
-    //   if (err) {
-    //     res.write("Failed to read data");
-    //     res.end();
-    //   } else {
-    //     res.write(data);
-    //     res.end();
-    //   }
-    // });
-
-    // synchronous way of reading file
-    // const data = fs.readFileSync("data.txt");
-    // res.write(data);
-    // res.end();
-
-    // asynchronous way of writing file
-    fs.writeFile("newData.txt", "Hello Node JS ....", (err) => {
-        if(err){
-            res.write("Failed to write data");
-            res.end();
-        }
-        else{
-            res.write("Data written successfully");
-            res.end();
-        }
+  // handle request
+  if (req.method === 'GET' && req.url === '/') {
+    // send the welcome message
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end('<html><body><h1>Welcome to Full Stack Development</h1></body></html>');
+  } else if (req.method === 'GET' && req.url === '/read') {
+    // read the contents if first.txt file and send it to the client
+    fs.readFile('first.txt', (err, data) => {
+      if (err) {
+        console.log(err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(data);
+      }
     });
+  } else if (req.method === 'GET' && req.url === '/write') {
+    // read the contents of first.txt and write it to second.txt
+    fs.readFile('first.txt', (err, data) => {
+      if (err) {
+        console.log(err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } else {
+        fs.writeFile('second.txt', data, (err) => {
+          if (err) {
+            console.log(err);
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Internal Server Error');
+          } else {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('File written successfully');
+          }
+        });
+      }
+    });
+  } else if (req.method === 'GET' && req.url === '/append') {
+    // append the text to first.txt
+    fs.appendFile('first.txt', 'No! It will be full not pull 🙄 !!!', (err) => {
+      if (err) {
+        console.log(err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('File appended successfully');
+      }
+    });
+  } else if (req.method === 'GET' && req.url === '/delete') {
+    // delete the second.txt file
+    fs.unlink('second.txt', (err) => {
+      if (err) {
+        console.log(err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('File deleted successfully');
+      }
+    });
+  } else {
+    // handle all other requests
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('404 - Not Found');
   }
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start the server on port 3000:
+server.listen(3000, () => {
+  console.log('Server is listening on port 3000');
+});
